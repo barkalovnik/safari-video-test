@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Тест прозрачного видео WebM в Safari — Проект МОДА</title>
+  <style>
+    :root {
+      --site-bg: #A5D8F4;
+      --card-bg: rgba(255, 255, 255, 0.7);
+      --card-border: rgba(0, 0, 0, 0.1);
+      --text-main: #1C1917;
+      --text-muted: #57534E;
+      --accent: #9A2B2B;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--site-bg);
+      color: var(--text-main);
+      padding: 24px;
+      line-height: 1.5;
+      transition: background-color 0.3s ease;
+    }
+
+    /* Шахматный фон для проверки прозрачности */
+    body.checkerboard {
+      background-color: #e5e5e5;
+      background-image: 
+        linear-gradient(45deg, #ccc 25%, transparent 25%), 
+        linear-gradient(-45deg, #ccc 25%, transparent 25%), 
+        linear-gradient(45deg, transparent 75%, #ccc 75%), 
+        linear-gradient(-45deg, transparent 75%, #ccc 75%);
+      background-size: 24px 24px;
+      background-position: 0 0, 0 12px, 12px -12px, -12px 0px;
+    }
+
+    body.dark {
+      background-color: #1C1917;
+      color: #FCF9F4;
+      --card-bg: rgba(40, 36, 33, 0.85);
+      --card-border: rgba(255, 255, 255, 0.15);
+      --text-main: #FCF9F4;
+      --text-muted: #A8A29E;
+    }
+
+    header {
+      max-width: 1280px;
+      margin: 0 auto 28px;
+      padding: 24px;
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 16px;
+      border: 1px solid var(--card-border);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+    }
+
+    h1 {
+      font-size: 26px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: var(--accent);
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .system-info {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-top: 8px;
+      padding: 10px 14px;
+      background: rgba(0, 0, 0, 0.04);
+      border-radius: 8px;
+    }
+
+    .controls-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    .btn {
+      cursor: pointer;
+      border: 1px solid var(--card-border);
+      background: #fff;
+      color: #1C1917;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .btn:hover {
+      background: #1C1917;
+      color: #fff;
+    }
+
+    .btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .grid-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 24px;
+    }
+
+    .test-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      flex-col: column;
+      flex-direction: column;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    .test-card-header {
+      margin-bottom: 14px;
+    }
+
+    .test-card-title {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .test-card-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .stage-container {
+      position: relative;
+      height: 440px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px dashed var(--card-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      margin-bottom: 16px;
+    }
+
+    /* Фоновые декорации для проверки прозрачности */
+    .stage-decor {
+      position: absolute;
+      width: 120px;
+      height: 120px;
+      background: #FF6B6B;
+      border-radius: 50%;
+      top: 20px;
+      left: 20px;
+      opacity: 0.6;
+      z-index: 1;
+    }
+
+    .stage-decor-bottom {
+      position: absolute;
+      width: 160px;
+      height: 160px;
+      background: #FFD93D;
+      border-radius: 50%;
+      bottom: 20px;
+      right: 20px;
+      opacity: 0.6;
+      z-index: 1;
+    }
+
+    .media-element {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    /* Режим multiply */
+    .blend-multiply {
+      mix-blend-mode: multiply !important;
+    }
+
+    .code-box {
+      background: #18181B;
+      color: #E4E4E7;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      padding: 12px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin-top: auto;
+    }
+
+    .status-tag {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+    .status-ok { background: #DCFCE7; color: #166534; }
+    .status-fail { background: #FEE2E2; color: #991B1B; }
+    .status-warn { background: #FEF3C7; color: #92400E; }
+
+    .slider-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      margin-bottom: 10px;
+    }
+    .slider-wrap input {
+      flex: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>
+      Тест прозрачности видео WebM в Safari
+      <span class="badge" id="browser-badge">Определение браузера...</span>
+    </h1>
+    <div class="system-info" id="system-info">
+      Считывание User-Agent...
+    </div>
+
+    <div class="controls-bar">
+      <span style="font-size: 13px; font-weight: 600;">Сменить фон страницы:</span>
+      <button class="btn active" onclick="setBg('site', this)">Голубой МОДА (#A5D8F4)</button>
+      <button class="btn" onclick="setBg('checkerboard', this)">Шахматка (Прозрачность)</button>
+      <button class="btn" onclick="setBg('dark', this)">Тёмный (#1C1917)</button>
+      <button class="btn" onclick="setBg('white', this)">Белый (#FFFFFF)</button>
+      <button class="btn" style="margin-left: auto;" onclick="togglePlay()">Воспроизвести / Пауза</button>
+    </div>
+  </header>
+
+  <main class="grid-container">
+
+    <!-- ВАРИАНТ 0: КОНТРОЛЬНЫЙ ОБРАЗЕЦ (ИСХОДНЫЙ WEBM) -->
+    <div class="test-card">
+      <div class="test-card-header">
+        <div class="test-card-title">
+          <span>0. Исходный WebM (Оригинал)</span>
+          <span class="status-tag status-fail">Safari: Белый фон</span>
+        </div>
+        <p class="test-card-desc">
+          В Chrome/Firefox прозрачность нативная. В Safari 18.5 движок CoreMedia заменяет альфа-канал белым прямоугольником.
+        </p>
+      </div>
+
+      <div class="stage-container">
+        <div class="stage-decor"></div>
+        <div class="stage-decor-bottom"></div>
+        <video 
+          class="media-element" 
+          src="red_girl.webm" 
+          autoplay loop muted playsinline preload="auto"
+        ></video>
+      </div>
+
+      <div class="code-box">
+&lt;video src="red_girl.webm" autoplay loop muted playsinline&gt;&lt;/video&gt;
+      </div>
+    </div>
+
+    <!-- ВАРИАНТ 1: CSS MIX-BLEND-MODE MULTIPLY -->
+    <div class="test-card">
+      <div class="test-card-header">
+        <div class="test-card-title">
+          <span>1. CSS mix-blend-multiply</span>
+          <span class="status-tag status-ok">Safari: Без белого фона</span>
+        </div>
+        <p class="test-card-desc">
+          Математическое умножение цвета: <code>Белый (1.0) × Цвет фона = Цвет фона</code>. Белый прямоугольник исчезает на фоне.
+        </p>
+      </div>
+
+      <div class="stage-container">
+        <div class="stage-decor"></div>
+        <div class="stage-decor-bottom"></div>
+        <video 
+          class="media-element blend-multiply" 
+          src="red_girl.webm" 
+          autoplay loop muted playsinline preload="auto"
+        ></video>
+      </div>
+
+      <div class="code-box">
+&lt;!-- В Tailwind: mix-blend-multiply --&gt;
+&lt;video class="mix-blend-multiply" src="red_girl.webm" autoplay loop muted playsinline&gt;&lt;/video&gt;
+      </div>
+    </div>
+
+    <!-- ВАРИАНТ 2: ПЕРЕКОНВЕРТИРОВАННЫЙ GIF -->
+    <div class="test-card">
+      <div class="test-card-header">
+        <div class="test-card-title">
+          <span>2. Анимированный GIF с прозрачностью</span>
+          <span class="status-tag status-ok">100% браузеров</span>
+        </div>
+        <p class="test-card-desc">
+          Сконвертирован из WebM с палитрой прозрачности. 100% совместимость со всеми версиями Safari и iOS через обычный <code>&lt;img&gt;</code>.
+        </p>
+      </div>
+
+      <div class="stage-container">
+        <div class="stage-decor"></div>
+        <div class="stage-decor-bottom"></div>
+        <img 
+          class="media-element" 
+          src="red_girl.gif" 
+          alt="Red Girl Transparent GIF"
+        />
+      </div>
+
+      <div class="code-box">
+&lt;!-- Стандартный тег img: нативная поддержка прозрачности --&gt;
+&lt;img src="red_girl.gif" alt="Model" /&gt;
+      </div>
+    </div>
+
+    <!-- ВАРИАНТ 3: REAL-TIME CANVAS CHROMA-KEY -->
+    <div class="test-card">
+      <div class="test-card-header">
+        <div class="test-card-title">
+          <span>3. Canvas Chroma-Key (JS)</span>
+          <span class="status-tag status-ok">Программная маска</span>
+        </div>
+        <p class="test-card-desc">
+          Скрытое видео рендерится на Canvas в реальном времени. Скрипт на лету удаляет белый фон пикселей без искажения цветов модели.
+        </p>
+      </div>
+
+      <div class="slider-wrap">
+        <span>Порог белого:</span>
+        <input type="range" id="threshold" min="200" max="255" value="240" oninput="updateThreshold(this.value)">
+        <span id="threshold-val">240</span>
+      </div>
+
+      <div class="stage-container">
+        <div class="stage-decor"></div>
+        <div class="stage-decor-bottom"></div>
+        <video 
+          id="canvas-source-video" 
+          src="red_girl.webm" 
+          autoplay loop muted playsinline preload="auto" 
+          style="display: none;"
+        ></video>
+        <canvas id="chroma-canvas" class="media-element"></canvas>
+      </div>
+
+      <div class="code-box">
+// JS в requestAnimationFrame зануляет альфа-канал белых пикселей:
+if (r &gt; threshold &amp;&amp; g &gt; threshold &amp;&amp; b &gt; threshold) data[i + 3] = 0;
+      </div>
+    </div>
+
+    <!-- ВАРИАНТ 4: АНИМИРОВАННЫЙ WEBP С АЛЬФА-КАНАЛОМ -->
+    <div class="test-card">
+      <div class="test-card-header">
+        <div class="test-card-title">
+          <span>4. Анимированный WebP с альфа-каналом</span>
+          <span class="status-tag status-ok">Safari 14+ / Chrome</span>
+        </div>
+        <p class="test-card-desc">
+          Safari 14+ поддерживает анимированный WebP с полноценным 8-битным альфа-каналом. Весит меньше GIF и имеет гладкие полупрозрачные края.
+        </p>
+      </div>
+
+      <div class="stage-container">
+        <div class="stage-decor"></div>
+        <div class="stage-decor-bottom"></div>
+        <img 
+          class="media-element" 
+          src="red_girl.webp" 
+          alt="Red Girl Transparent WebP"
+        />
+      </div>
+
+      <div class="code-box">
+&lt;!-- Анимированный WebP с альфа-каналом --&gt;
+&lt;img src="red_girl.webp" alt="Model" /&gt;
+      </div>
+    </div>
+
+    <!-- ВАРИАНТ 5: HTML5 SOURCE FALLBACK (HEVC MP4 + WEBM) -->
+    <div class="test-card">
+      <div class="test-card-header">
+        <div class="test-card-title">
+          <span>5. Стандарт W3C: HEVC + WebM</span>
+          <span class="status-tag status-ok">Золотой стандарт</span>
+        </div>
+        <p class="test-card-desc">
+          Тег <code>&lt;video&gt;</code> с двумя источниками: Safari забирает <code>video/mp4; codecs="hvc1"</code>, Chrome/Firefox забирают <code>video/webm</code>.
+        </p>
+      </div>
+
+      <div class="stage-container">
+        <div class="stage-decor"></div>
+        <div class="stage-decor-bottom"></div>
+        <video 
+          class="media-element" 
+          autoplay loop muted playsinline preload="auto"
+        >
+          <!-- Для Safari: если загружен red_girl.mp4 (HEVC with alpha) -->
+          <source src="red_girl.mp4" type='video/mp4; codecs="hvc1"'>
+          <!-- Для остальных браузеров: WebM с альфа-каналом -->
+          <source src="red_girl.webm" type="video/webm">
+        </video>
+      </div>
+
+      <div class="code-box">
+&lt;video autoplay loop muted playsinline&gt;
+  &lt;source src="red_girl.mp4" type='video/mp4; codecs="hvc1"'&gt;
+  &lt;source src="red_girl.webm" type="video/webm"&gt;
+&lt;/video&gt;
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    // Определение браузера пользователя
+    (function detectBrowser() {
+      const ua = navigator.userAgent;
+      const vendor = navigator.vendor || '';
+      const isApple = vendor.includes('Apple') || /Safari/.test(ua);
+      const isChromium = /Chrome|Chromium|CriOS|Edg|OPR/.test(ua);
+      const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+      const badge = document.getElementById('browser-badge');
+      const info = document.getElementById('system-info');
+
+      if ((isApple && !isChromium) || isIOS) {
+        badge.textContent = 'Обнаружен: Apple Safari / WebKit';
+        badge.style.background = '#2563EB';
+      } else if (isChromium) {
+        badge.textContent = 'Обнаружен: Chromium (Chrome/Edge/Яндекс)';
+        badge.style.background = '#059669';
+      } else {
+        badge.textContent = 'Обнаружен: Firefox / Другой браузер';
+        badge.style.background = '#D97706';
+      }
+
+      info.textContent = 'Платформа: ' + navigator.platform + ' | Движок: ' + (vendor || 'N/A') + ' | ' + ua;
+    })();
+
+    // Смена фона
+    function setBg(type, btn) {
+      document.querySelectorAll('.controls-bar .btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+
+      document.body.className = '';
+      if (type === 'checkerboard') {
+        document.body.classList.add('checkerboard');
+      } else if (type === 'dark') {
+        document.body.classList.add('dark');
+      } else if (type === 'white') {
+        document.body.style.backgroundColor = '#FFFFFF';
+      } else {
+        document.body.style.backgroundColor = 'var(--site-bg)';
+      }
+    }
+
+    // Пауза / Воспроизведение всех видео
+    let isPlaying = true;
+    function togglePlay() {
+      const videos = document.querySelectorAll('video');
+      isPlaying = !isPlaying;
+      videos.forEach(v => isPlaying ? v.play() : v.pause());
+    }
+
+    // Хромакей на Canvas (Вариант 3)
+    let chromaThreshold = 240;
+    function updateThreshold(val) {
+      chromaThreshold = parseInt(val, 10);
+      document.getElementById('threshold-val').textContent = val;
+    }
+
+    const canvasVideo = document.getElementById('canvas-source-video');
+    const canvas = document.getElementById('chroma-canvas');
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+
+    function renderChroma() {
+      if (canvasVideo.readyState >= 2) {
+        if (canvas.width !== canvasVideo.videoWidth || canvas.height !== canvasVideo.videoHeight) {
+          canvas.width = canvasVideo.videoWidth || 320;
+          canvas.height = canvasVideo.videoHeight || 569;
+        }
+
+        ctx.drawImage(canvasVideo, 0, 0, canvas.width, canvas.height);
+        const frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = frame.data;
+        const len = data.length;
+        const th = chromaThreshold;
+
+        // Попиксельный хромакей: если пиксель близко к белому - делаем его полностью прозрачным
+        for (let i = 0; i < len; i += 4) {
+          const r = data[i];
+          const g = data[i + 1];
+          const b = data[i + 2];
+          if (r >= th && g >= th && b >= th) {
+            data[i + 3] = 0; // Alpha = 0
+          }
+        }
+        ctx.putImageData(frame, 0, 0);
+      }
+      requestAnimationFrame(renderChroma);
+    }
+    canvasVideo.addEventListener('play', () => {
+      requestAnimationFrame(renderChroma);
+    });
+    // Запуск цикла
+    requestAnimationFrame(renderChroma);
+  </script>
+</body>
+</html>
