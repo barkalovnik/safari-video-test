@@ -3,15 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Тест прозрачного видео WebM в Safari — Проект МОДА</title>
+  <title>Тест HEVC (MP4) и WebM с прозрачностью в Safari — МОДА</title>
   <style>
     :root {
       --site-bg: #A5D8F4;
-      --card-bg: rgba(255, 255, 255, 0.7);
+      --card-bg: rgba(255, 255, 255, 0.75);
       --card-border: rgba(0, 0, 0, 0.1);
       --text-main: #1C1917;
       --text-muted: #57534E;
       --accent: #9A2B2B;
+      --green: #15803D;
+      --blue: #1D4ED8;
     }
 
     * {
@@ -26,10 +28,10 @@
       color: var(--text-main);
       padding: 24px;
       line-height: 1.5;
-      transition: background-color 0.3s ease;
+      transition: background 0.3s ease;
     }
 
-    /* Шахматный фон для проверки прозрачности */
+    /* Фоновые режимы */
     body.checkerboard {
       background-color: #e5e5e5;
       background-image: 
@@ -44,22 +46,26 @@
     body.dark {
       background-color: #1C1917;
       color: #FCF9F4;
-      --card-bg: rgba(40, 36, 33, 0.85);
+      --card-bg: rgba(38, 35, 33, 0.88);
       --card-border: rgba(255, 255, 255, 0.15);
       --text-main: #FCF9F4;
       --text-muted: #A8A29E;
     }
 
+    body.gradient {
+      background: linear-gradient(135deg, #A5D8F4 0%, #FBCFE8 50%, #FED7AA 100%);
+    }
+
     header {
-      max-width: 1280px;
-      margin: 0 auto 28px;
+      max-width: 1360px;
+      margin: 0 auto 24px;
       padding: 24px;
       background: var(--card-bg);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-radius: 16px;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-radius: 18px;
       border: 1px solid var(--card-border);
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
     }
 
     h1 {
@@ -74,8 +80,8 @@
     .badge {
       display: inline-block;
       font-size: 12px;
-      font-weight: 600;
-      padding: 4px 10px;
+      font-weight: 700;
+      padding: 5px 12px;
       border-radius: 20px;
       background: var(--accent);
       color: #fff;
@@ -84,20 +90,34 @@
     }
 
     .system-info {
-      font-size: 14px;
+      font-size: 13px;
       color: var(--text-muted);
-      margin-top: 8px;
+      margin-top: 10px;
       padding: 10px 14px;
       background: rgba(0, 0, 0, 0.04);
       border-radius: 8px;
+      word-break: break-all;
     }
 
-    .controls-bar {
+    .toolbar-section {
+      margin-top: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .controls-row {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       flex-wrap: wrap;
-      margin-top: 16px;
+    }
+
+    .controls-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+      min-width: 150px;
     }
 
     .btn {
@@ -105,11 +125,14 @@
       border: 1px solid var(--card-border);
       background: #fff;
       color: #1C1917;
-      padding: 8px 16px;
+      padding: 8px 14px;
       border-radius: 8px;
       font-size: 13px;
       font-weight: 600;
-      transition: all 0.2s;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
     }
 
     .btn:hover {
@@ -123,29 +146,53 @@
       border-color: var(--accent);
     }
 
+    .btn-auto.active {
+      background: var(--green);
+      border-color: var(--green);
+      color: #fff;
+    }
+
     .grid-container {
-      max-width: 1280px;
+      max-width: 1360px;
       margin: 0 auto;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
-      gap: 24px;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 22px;
     }
 
     .test-card {
       background: var(--card-bg);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
       border: 1px solid var(--card-border);
-      border-radius: 16px;
+      border-radius: 18px;
       padding: 20px;
       display: flex;
-      flex-col: column;
       flex-direction: column;
       box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
     }
 
+    .test-card.hero-card {
+      border: 2px solid var(--green);
+      position: relative;
+    }
+
+    .hero-badge {
+      position: absolute;
+      top: -12px;
+      right: 18px;
+      background: var(--green);
+      color: white;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 12px;
+      letter-spacing: 0.5px;
+    }
+
     .test-card-header {
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
 
     .test-card-title {
@@ -155,6 +202,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 8px;
     }
 
     .test-card-desc {
@@ -164,39 +212,39 @@
 
     .stage-container {
       position: relative;
-      height: 440px;
-      border-radius: 12px;
+      height: 430px;
+      border-radius: 14px;
       overflow: hidden;
       border: 1px dashed var(--card-border);
       display: flex;
       align-items: center;
       justify-content: center;
       background: transparent;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
 
-    /* Фоновые декорации для проверки прозрачности */
+    /* Декоративные цветные круги позади видео для мгновенной оценки прозрачности */
     .stage-decor {
       position: absolute;
-      width: 120px;
-      height: 120px;
-      background: #FF6B6B;
+      width: 140px;
+      height: 140px;
+      background: #E11D48;
       border-radius: 50%;
-      top: 20px;
-      left: 20px;
-      opacity: 0.6;
+      top: 15px;
+      left: 15px;
+      opacity: 0.75;
       z-index: 1;
     }
 
     .stage-decor-bottom {
       position: absolute;
-      width: 160px;
-      height: 160px;
-      background: #FFD93D;
+      width: 170px;
+      height: 170px;
+      background: #F59E0B;
       border-radius: 50%;
-      bottom: 20px;
-      right: 20px;
-      opacity: 0.6;
+      bottom: 15px;
+      right: 15px;
+      opacity: 0.75;
       z-index: 1;
     }
 
@@ -208,7 +256,6 @@
       object-fit: contain;
     }
 
-    /* Режим multiply */
     .blend-multiply {
       mix-blend-mode: multiply !important;
     }
@@ -217,8 +264,8 @@
       background: #18181B;
       color: #E4E4E7;
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 12px;
-      padding: 12px;
+      font-size: 11.5px;
+      padding: 10px 12px;
       border-radius: 8px;
       overflow-x: auto;
       margin-top: auto;
@@ -227,22 +274,36 @@
     .status-tag {
       font-size: 11px;
       font-weight: 700;
-      padding: 2px 8px;
+      padding: 3px 8px;
       border-radius: 6px;
+      white-space: nowrap;
     }
     .status-ok { background: #DCFCE7; color: #166534; }
     .status-fail { background: #FEE2E2; color: #991B1B; }
-    .status-warn { background: #FEF3C7; color: #92400E; }
+    .status-info { background: #DBEAFE; color: #1E40AF; }
 
     .slider-wrap {
       display: flex;
       align-items: center;
       gap: 8px;
       font-size: 12px;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
     .slider-wrap input {
       flex: 1;
+    }
+
+    .source-detect-box {
+      font-size: 11px;
+      padding: 6px 10px;
+      background: rgba(0, 0, 0, 0.05);
+      border-radius: 6px;
+      margin-bottom: 10px;
+      color: var(--text-muted);
+      word-break: break-all;
+    }
+    .source-detect-box strong {
+      color: var(--text-main);
     }
   </style>
 </head>
@@ -250,34 +311,50 @@
 
   <header>
     <h1>
-      Тест прозрачности видео WebM в Safari
+      Тест HEVC (MP4) и WebM с прозрачностью в Safari
       <span class="badge" id="browser-badge">Определение браузера...</span>
     </h1>
     <div class="system-info" id="system-info">
-      Считывание User-Agent...
+      Считывание характеристик платформы...
     </div>
 
-    <div class="controls-bar">
-      <span style="font-size: 13px; font-weight: 600;">Сменить фон страницы:</span>
-      <button class="btn active" onclick="setBg('site', this)">Голубой МОДА (#A5D8F4)</button>
-      <button class="btn" onclick="setBg('checkerboard', this)">Шахматка (Прозрачность)</button>
-      <button class="btn" onclick="setBg('dark', this)">Тёмный (#1C1917)</button>
-      <button class="btn" onclick="setBg('white', this)">Белый (#FFFFFF)</button>
-      <button class="btn" style="margin-left: auto;" onclick="togglePlay()">Воспроизвести / Пауза</button>
+    <div class="toolbar-section">
+      <!-- 1. Выбор модели -->
+      <div class="controls-row">
+        <span class="controls-label">Выбор девушки (модели):</span>
+        <button class="btn active model-btn" onclick="switchModel('red_girl', this)">🔴 Красная (red)</button>
+        <button class="btn model-btn" onclick="switchModel('green_girl', this)">🟢 Зелёная (green)</button>
+        <button class="btn model-btn" onclick="switchModel('pink_girl', this)">🌸 Розовая (pink)</button>
+        <button class="btn model-btn" onclick="switchModel('blue_girl', this)">🔵 Синяя (blue)</button>
+        <button class="btn model-btn" onclick="switchModel('yellow_girl', this)">🟡 Жёлтая (yellow)</button>
+        <button class="btn btn-auto" id="auto-btn" onclick="toggleAutoSwitch()">⏱️ Автосмена (5 сек): ВЫКЛ</button>
+      </div>
+
+      <!-- 2. Смена фона страницы -->
+      <div class="controls-row">
+        <span class="controls-label">Фон страницы:</span>
+        <button class="btn active bg-btn" onclick="setBg('site', this)">Голубой МОДА (#A5D8F4)</button>
+        <button class="btn bg-btn" onclick="setBg('checkerboard', this)">Шахматка (Прозрачность)</button>
+        <button class="btn bg-btn" onclick="setBg('gradient', this)">Цветной градиент</button>
+        <button class="btn bg-btn" onclick="setBg('dark', this)">Тёмный (#1C1917)</button>
+        <button class="btn bg-btn" onclick="setBg('white', this)">Белый (#FFFFFF)</button>
+        <button class="btn" style="margin-left: auto;" onclick="togglePlay()">⏸️ / ▶️ Пауза / Пуск</button>
+      </div>
     </div>
   </header>
 
   <main class="grid-container">
 
-    <!-- ВАРИАНТ 0: КОНТРОЛЬНЫЙ ОБРАЗЕЦ (ИСХОДНЫЙ WEBM) -->
-    <div class="test-card">
+    <!-- КАРТОЧКА 1: НОВЫЙ HEVC MP4 (ГЛАВНОЕ РЕШЕНИЕ) -->
+    <div class="test-card hero-card">
+      <div class="hero-badge">Эталон Safari</div>
       <div class="test-card-header">
         <div class="test-card-title">
-          <span>0. Исходный WebM (Оригинал)</span>
-          <span class="status-tag status-fail">Safari: Белый фон</span>
+          <span>1. Новый HEVC (MP4)</span>
+          <span class="status-tag status-ok">Safari: 100% Прозрачно</span>
         </div>
         <p class="test-card-desc">
-          В Chrome/Firefox прозрачность нативная. В Safari 18.5 движок CoreMedia заменяет альфа-канал белым прямоугольником.
+          Файл <code>.mp4</code> закодирован через <code>hevc_videotoolbox</code> с тегом <code>hvc1</code>. В Safari на macOS и iOS прозрачность идеальная и аппаратная.
         </p>
       </div>
 
@@ -285,10 +362,116 @@
         <div class="stage-decor"></div>
         <div class="stage-decor-bottom"></div>
         <video 
+          id="video-hevc"
+          class="media-element" 
+          src="red_girl.mp4" 
+          autoplay loop muted playsinline preload="auto"
+        ></video>
+      </div>
+
+      <div class="source-detect-box">
+        Файл: <strong id="hevc-file-label">red_girl.mp4</strong> | Кодек: <strong>hevc (hvc1)</strong>
+      </div>
+
+      <div class="code-box">
+&lt;video src="red_girl.mp4" autoplay loop muted playsinline&gt;&lt;/video&gt;
+      </div>
+    </div>
+
+    <!-- КАРТОЧКА 2: СТАНДАРТ W3C (СВЯЗКА HEVC + WEBM) -->
+    <div class="test-card">
+      <div class="test-card-header">
+        <div class="test-card-title">
+          <span>2. Связка HEVC + WebM</span>
+          <span class="status-tag status-ok">Все браузеры</span>
+        </div>
+        <p class="test-card-desc">
+          Один тег <code>&lt;video&gt;</code> с двумя <code>&lt;source&gt;</code>. Safari автоматически берет HEVC, а Chrome/Firefox — WebM.
+        </p>
+      </div>
+
+      <div class="stage-container">
+        <div class="stage-decor"></div>
+        <div class="stage-decor-bottom"></div>
+        <video 
+          id="video-combo"
+          class="media-element" 
+          autoplay loop muted playsinline preload="auto"
+        >
+          <source id="source-combo-mp4" src="red_girl.mp4" type='video/mp4; codecs="hvc1"'>
+          <source id="source-combo-webm" src="red_girl.webm" type="video/webm">
+        </video>
+      </div>
+
+      <div class="source-detect-box">
+        Браузер воспроизводит: <strong id="combo-active-source">Определение...</strong>
+      </div>
+
+      <div class="code-box">
+&lt;video autoplay loop muted playsinline&gt;
+  &lt;source src="red_girl.mp4" type='video/mp4; codecs="hvc1"'&gt;
+  &lt;source src="red_girl.webm" type="video/webm"&gt;
+&lt;/video&gt;
+      </div>
+    </div>
+
+    <!-- КАРТОЧКА 3: CSS MIX-BLEND-MULTIPLY (WEBM) -->
+    <div class="test-card">
+      <div class="test-card-header">
+        <div class="test-card-title">
+          <span>3. CSS mix-blend-multiply</span>
+          <span class="status-tag status-info">WebM без смены файла</span>
+        </div>
+        <p class="test-card-desc">
+          Умножение цвета на белый делает фон прозрачным поверх фонового цвета, но может слегка тонировать светлые детали одежды.
+        </p>
+      </div>
+
+      <div class="stage-container">
+        <div class="stage-decor"></div>
+        <div class="stage-decor-bottom"></div>
+        <video 
+          id="video-multiply"
+          class="media-element blend-multiply" 
+          src="red_girl.webm" 
+          autoplay loop muted playsinline preload="auto"
+        ></video>
+      </div>
+
+      <div class="source-detect-box">
+        Класс: <strong>mix-blend-multiply</strong> на WebM видео
+      </div>
+
+      <div class="code-box">
+&lt;video class="mix-blend-multiply" src="red_girl.webm" autoplay loop muted playsinline&gt;&lt;/video&gt;
+      </div>
+    </div>
+
+    <!-- КАРТОЧКА 4: ИСХОДНЫЙ WEBM (КОНТРОЛЬНЫЙ ОБРАЗЕЦ) -->
+    <div class="test-card">
+      <div class="test-card-header">
+        <div class="test-card-title">
+          <span>4. Исходный WebM (Оригинал)</span>
+          <span class="status-tag status-fail">Safari: Белый фон</span>
+        </div>
+        <p class="test-card-desc">
+          В Chrome/Edge прозрачно. В Safari 18.5 без обработки здесь виден белый непрозрачный прямоугольник.
+        </p>
+      </div>
+
+      <div class="stage-container">
+        <div class="stage-decor"></div>
+        <div class="stage-decor-bottom"></div>
+        <video 
+          id="video-original-webm"
           class="media-element" 
           src="red_girl.webm" 
           autoplay loop muted playsinline preload="auto"
         ></video>
+      </div>
+
+      <div class="source-detect-box">
+        Файл: <strong id="webm-file-label">red_girl.webm</strong> (VP9 + Alpha)
       </div>
 
       <div class="code-box">
@@ -296,71 +479,15 @@
       </div>
     </div>
 
-    <!-- ВАРИАНТ 1: CSS MIX-BLEND-MODE MULTIPLY -->
+    <!-- КАРТОЧКА 5: REAL-TIME CANVAS CHROMA-KEY (JS) -->
     <div class="test-card">
       <div class="test-card-header">
         <div class="test-card-title">
-          <span>1. CSS mix-blend-multiply</span>
-          <span class="status-tag status-ok">Safari: Без белого фона</span>
+          <span>5. Canvas Chroma-Key (JS)</span>
+          <span class="status-tag status-info">Программное вырезание</span>
         </div>
         <p class="test-card-desc">
-          Математическое умножение цвета: <code>Белый (1.0) × Цвет фона = Цвет фона</code>. Белый прямоугольник исчезает на фоне.
-        </p>
-      </div>
-
-      <div class="stage-container">
-        <div class="stage-decor"></div>
-        <div class="stage-decor-bottom"></div>
-        <video 
-          class="media-element blend-multiply" 
-          src="red_girl.webm" 
-          autoplay loop muted playsinline preload="auto"
-        ></video>
-      </div>
-
-      <div class="code-box">
-&lt;!-- В Tailwind: mix-blend-multiply --&gt;
-&lt;video class="mix-blend-multiply" src="red_girl.webm" autoplay loop muted playsinline&gt;&lt;/video&gt;
-      </div>
-    </div>
-
-    <!-- ВАРИАНТ 2: ПЕРЕКОНВЕРТИРОВАННЫЙ GIF -->
-    <div class="test-card">
-      <div class="test-card-header">
-        <div class="test-card-title">
-          <span>2. Анимированный GIF с прозрачностью</span>
-          <span class="status-tag status-ok">100% браузеров</span>
-        </div>
-        <p class="test-card-desc">
-          Сконвертирован из WebM с палитрой прозрачности. 100% совместимость со всеми версиями Safari и iOS через обычный <code>&lt;img&gt;</code>.
-        </p>
-      </div>
-
-      <div class="stage-container">
-        <div class="stage-decor"></div>
-        <div class="stage-decor-bottom"></div>
-        <img 
-          class="media-element" 
-          src="red_girl.gif" 
-          alt="Red Girl Transparent GIF"
-        />
-      </div>
-
-      <div class="code-box">
-&lt;!-- Стандартный тег img: нативная поддержка прозрачности --&gt;
-&lt;img src="red_girl.gif" alt="Model" /&gt;
-      </div>
-    </div>
-
-    <!-- ВАРИАНТ 3: REAL-TIME CANVAS CHROMA-KEY -->
-    <div class="test-card">
-      <div class="test-card-header">
-        <div class="test-card-title">
-          <span>3. Canvas Chroma-Key (JS)</span>
-          <span class="status-tag status-ok">Программная маска</span>
-        </div>
-        <p class="test-card-desc">
-          Скрытое видео рендерится на Canvas в реальном времени. Скрипт на лету удаляет белый фон пикселей без искажения цветов модели.
+          Скрытый WebM по кадрам считывается на Canvas, где программно зануляется альфа-канал всех белых пикселей.
         </p>
       </div>
 
@@ -382,77 +509,22 @@
         <canvas id="chroma-canvas" class="media-element"></canvas>
       </div>
 
-      <div class="code-box">
-// JS в requestAnimationFrame зануляет альфа-канал белых пикселей:
-if (r &gt; threshold &amp;&amp; g &gt; threshold &amp;&amp; b &gt; threshold) data[i + 3] = 0;
-      </div>
-    </div>
-
-    <!-- ВАРИАНТ 4: АНИМИРОВАННЫЙ WEBP С АЛЬФА-КАНАЛОМ -->
-    <div class="test-card">
-      <div class="test-card-header">
-        <div class="test-card-title">
-          <span>4. Анимированный WebP с альфа-каналом</span>
-          <span class="status-tag status-ok">Safari 14+ / Chrome</span>
-        </div>
-        <p class="test-card-desc">
-          Safari 14+ поддерживает анимированный WebP с полноценным 8-битным альфа-каналом. Весит меньше GIF и имеет гладкие полупрозрачные края.
-        </p>
-      </div>
-
-      <div class="stage-container">
-        <div class="stage-decor"></div>
-        <div class="stage-decor-bottom"></div>
-        <img 
-          class="media-element" 
-          src="red_girl.webp" 
-          alt="Red Girl Transparent WebP"
-        />
+      <div class="source-detect-box">
+        FPS отрисовки: <strong id="canvas-fps">25 fps</strong> | Режим: <strong>RGBA Pixel Manipulation</strong>
       </div>
 
       <div class="code-box">
-&lt;!-- Анимированный WebP с альфа-каналом --&gt;
-&lt;img src="red_girl.webp" alt="Model" /&gt;
-      </div>
-    </div>
-
-    <!-- ВАРИАНТ 5: HTML5 SOURCE FALLBACK (HEVC MP4 + WEBM) -->
-    <div class="test-card">
-      <div class="test-card-header">
-        <div class="test-card-title">
-          <span>5. Стандарт W3C: HEVC + WebM</span>
-          <span class="status-tag status-ok">Золотой стандарт</span>
-        </div>
-        <p class="test-card-desc">
-          Тег <code>&lt;video&gt;</code> с двумя источниками: Safari забирает <code>video/mp4; codecs="hvc1"</code>, Chrome/Firefox забирают <code>video/webm</code>.
-        </p>
-      </div>
-
-      <div class="stage-container">
-        <div class="stage-decor"></div>
-        <div class="stage-decor-bottom"></div>
-        <video 
-          class="media-element" 
-          autoplay loop muted playsinline preload="auto"
-        >
-          <!-- Для Safari: если загружен red_girl.mp4 (HEVC with alpha) -->
-          <source src="red_girl.mp4" type='video/mp4; codecs="hvc1"'>
-          <!-- Для остальных браузеров: WebM с альфа-каналом -->
-          <source src="red_girl.webm" type="video/webm">
-        </video>
-      </div>
-
-      <div class="code-box">
-&lt;video autoplay loop muted playsinline&gt;
-  &lt;source src="red_girl.mp4" type='video/mp4; codecs="hvc1"'&gt;
-  &lt;source src="red_girl.webm" type="video/webm"&gt;
-&lt;/video&gt;
+if (r &gt;= th &amp;&amp; g &gt;= th &amp;&amp; b &gt;= th) data[i + 3] = 0; // Alpha = 0
       </div>
     </div>
 
   </main>
 
   <script>
+    const MODELS = ['red_girl', 'green_girl', 'pink_girl', 'blue_girl', 'yellow_girl'];
+    let currentModel = 'red_girl';
+    let autoInterval = null;
+
     // Определение браузера пользователя
     (function detectBrowser() {
       const ua = navigator.userAgent;
@@ -465,29 +537,113 @@ if (r &gt; threshold &amp;&amp; g &gt; threshold &amp;&amp; b &gt; threshold) da
       const info = document.getElementById('system-info');
 
       if ((isApple && !isChromium) || isIOS) {
-        badge.textContent = 'Обнаружен: Apple Safari / WebKit';
-        badge.style.background = '#2563EB';
+        badge.textContent = 'Обнаружен: Apple Safari / WebKit (macOS / iOS)';
+        badge.style.background = '#1D4ED8';
       } else if (isChromium) {
-        badge.textContent = 'Обнаружен: Chromium (Chrome/Edge/Яндекс)';
+        badge.textContent = 'Обнаружен: Chromium (Chrome / Edge / Яндекс)';
         badge.style.background = '#059669';
       } else {
-        badge.textContent = 'Обнаружен: Firefox / Другой браузер';
+        badge.textContent = 'Обнаружен: Firefox / Gecko';
         badge.style.background = '#D97706';
       }
 
-      info.textContent = 'Платформа: ' + navigator.platform + ' | Движок: ' + (vendor || 'N/A') + ' | ' + ua;
+      info.textContent = 'Платформа: ' + navigator.platform + ' | Вендор: ' + (vendor || 'N/A') + ' | ' + ua;
     })();
+
+    // Обновление детектора активного источника в связке HEVC+WebM
+    function updateActiveSource() {
+      const combo = document.getElementById('video-combo');
+      const label = document.getElementById('combo-active-source');
+      setTimeout(() => {
+        const src = combo.currentSrc || '';
+        if (src.endsWith('.mp4')) {
+          label.innerHTML = '<span style="color: #15803D;">red_girl.mp4 (HEVC / Apple)</span>';
+        } else if (src.endsWith('.webm')) {
+          label.innerHTML = '<span style="color: #1D4ED8;">red_girl.webm (VP9 / Chromium)</span>';
+        } else {
+          label.textContent = src ? src.split('/').pop() : 'Загрузка потока...';
+        }
+      }, 300);
+    }
+    document.getElementById('video-combo').addEventListener('loadeddata', updateActiveSource);
+    updateActiveSource();
+
+    // Переключение модели
+    function switchModel(modelName, btn) {
+      currentModel = modelName;
+      document.querySelectorAll('.model-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+
+      // 1. HEVC
+      const videoHevc = document.getElementById('video-hevc');
+      videoHevc.src = `${modelName}.mp4`;
+      videoHevc.load();
+      videoHevc.play().catch(() => {});
+      document.getElementById('hevc-file-label').textContent = `${modelName}.mp4`;
+
+      // 2. Combo (HEVC + WebM)
+      const videoCombo = document.getElementById('video-combo');
+      document.getElementById('source-combo-mp4').src = `${modelName}.mp4`;
+      document.getElementById('source-combo-webm').src = `${modelName}.webm`;
+      videoCombo.load();
+      videoCombo.play().catch(() => {});
+      updateActiveSource();
+
+      // 3. Multiply
+      const videoMul = document.getElementById('video-multiply');
+      videoMul.src = `${modelName}.webm`;
+      videoMul.load();
+      videoMul.play().catch(() => {});
+
+      // 4. Original WebM
+      const videoOrig = document.getElementById('video-original-webm');
+      videoOrig.src = `${modelName}.webm`;
+      videoOrig.load();
+      videoOrig.play().catch(() => {});
+      document.getElementById('webm-file-label').textContent = `${modelName}.webm`;
+
+      // 5. Canvas Video
+      const canvasVid = document.getElementById('canvas-source-video');
+      canvasVid.src = `${modelName}.webm`;
+      canvasVid.load();
+      canvasVid.play().catch(() => {});
+    }
+
+    // Автоматическая смена моделей каждые 5 секунд (как на реальном сайте)
+    function toggleAutoSwitch() {
+      const btn = document.getElementById('auto-btn');
+      if (autoInterval) {
+        clearInterval(autoInterval);
+        autoInterval = null;
+        btn.classList.remove('active');
+        btn.textContent = '⏱️ Автосмена (5 сек): ВЫКЛ';
+      } else {
+        btn.classList.add('active');
+        btn.textContent = '⏱️ Автосмена (5 сек): ВКЛ';
+        autoInterval = setInterval(() => {
+          const currentIndex = MODELS.indexOf(currentModel);
+          const nextIndex = (currentIndex + 1) % MODELS.length;
+          const nextModel = MODELS[nextIndex];
+          const nextBtn = document.querySelectorAll('.model-btn')[nextIndex];
+          switchModel(nextModel, nextBtn);
+        }, 5000);
+      }
+    }
 
     // Смена фона
     function setBg(type, btn) {
-      document.querySelectorAll('.controls-bar .btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.bg-btn').forEach(b => b.classList.remove('active'));
       if (btn) btn.classList.add('active');
 
       document.body.className = '';
+      document.body.style.backgroundColor = '';
+
       if (type === 'checkerboard') {
         document.body.classList.add('checkerboard');
       } else if (type === 'dark') {
         document.body.classList.add('dark');
+      } else if (type === 'gradient') {
+        document.body.classList.add('gradient');
       } else if (type === 'white') {
         document.body.style.backgroundColor = '#FFFFFF';
       } else {
@@ -500,10 +656,10 @@ if (r &gt; threshold &amp;&amp; g &gt; threshold &amp;&amp; b &gt; threshold) da
     function togglePlay() {
       const videos = document.querySelectorAll('video');
       isPlaying = !isPlaying;
-      videos.forEach(v => isPlaying ? v.play() : v.pause());
+      videos.forEach(v => isPlaying ? v.play().catch(() => {}) : v.pause());
     }
 
-    // Хромакей на Canvas (Вариант 3)
+    // Хромакей на Canvas (Карточка 5)
     let chromaThreshold = 240;
     function updateThreshold(val) {
       chromaThreshold = parseInt(val, 10);
@@ -527,23 +683,18 @@ if (r &gt; threshold &amp;&amp; g &gt; threshold &amp;&amp; b &gt; threshold) da
         const len = data.length;
         const th = chromaThreshold;
 
-        // Попиксельный хромакей: если пиксель близко к белому - делаем его полностью прозрачным
         for (let i = 0; i < len; i += 4) {
           const r = data[i];
           const g = data[i + 1];
           const b = data[i + 2];
           if (r >= th && g >= th && b >= th) {
-            data[i + 3] = 0; // Alpha = 0
+            data[i + 3] = 0;
           }
         }
         ctx.putImageData(frame, 0, 0);
       }
       requestAnimationFrame(renderChroma);
     }
-    canvasVideo.addEventListener('play', () => {
-      requestAnimationFrame(renderChroma);
-    });
-    // Запуск цикла
     requestAnimationFrame(renderChroma);
   </script>
 </body>
