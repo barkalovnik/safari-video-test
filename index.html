@@ -309,6 +309,20 @@
 </head>
 <body>
 
+  <!-- SVG Фильтр для очистки белой каймы (сжатие/эрозия альфы без перекодирования файла) -->
+  <svg width="0" height="0" style="position: absolute; pointer-events: none;" aria-hidden="true">
+    <defs>
+      <filter id="clean-hevc-fringe">
+        <!-- Сужение силуэта (erode) на радиус -->
+        <feMorphology id="svg-erode" operator="erode" radius="0.6" in="SourceGraphic" result="eroded" />
+        <!-- Отсечение полупрозрачных белых пикселей по краям -->
+        <feComponentTransfer in="eroded">
+          <feFuncA id="svg-alpha-func" type="linear" slope="2.0" intercept="-0.5" />
+        </feComponentTransfer>
+      </filter>
+    </defs>
+  </svg>
+
   <header>
     <h1>
       Тест HEVC (MP4) и WebM с прозрачностью в Safari
@@ -375,6 +389,46 @@
 
       <div class="code-box">
 &lt;video src="red_girl.mp4" autoplay loop muted playsinline&gt;&lt;/video&gt;
+      </div>
+    </div>
+
+    <!-- КАРТОЧКА 1.5: HEVC + SVG ФИЛЬТР ОЧИСТКИ КРАЁВ -->
+    <div class="test-card">
+      <div class="test-card-header">
+        <div class="test-card-title">
+          <span>1.5. HEVC + SVG-очистка краёв</span>
+          <span class="status-tag status-ok">Без перекодирования</span>
+        </div>
+        <p class="test-card-desc">
+          SVG-фильтр <code>feMorphology</code> + <code>feComponentTransfer</code> подрезает полупрозрачную белую кайму по контуру видео на лету.
+        </p>
+      </div>
+
+      <div class="slider-wrap">
+        <span>Эрозия (px):</span>
+        <input type="range" id="erode-range" min="0" max="2.5" step="0.1" value="0.6" oninput="updateSvgFilter()">
+        <span id="erode-val">0.6</span>
+      </div>
+      <div class="slider-wrap">
+        <span>Срез альфы:</span>
+        <input type="range" id="cutoff-range" min="0" max="1" step="0.05" value="0.5" oninput="updateSvgFilter()">
+        <span id="cutoff-val">0.5</span>
+      </div>
+
+      <div class="stage-container">
+        <div class="stage-decor"></div>
+        <div class="stage-decor-bottom"></div>
+        <video 
+          id="video-hevc-svg"
+          class="media-element" 
+          style="filter: url(#clean-hevc-fringe); -webkit-filter: url(#clean-hevc-fringe);"
+          src="red_girl.mp4" 
+          autoplay loop muted playsinline preload="auto"
+        ></video>
+      </div>
+
+      <div class="code-box">
+filter: url(#clean-hevc-fringe); /* feMorphology erode + feFuncA cutoff */
       </div>
     </div>
 
@@ -581,6 +635,14 @@ if (r &gt;= th &amp;&amp; g &gt;= th &amp;&amp; b &gt;= th) data[i + 3] = 0; // 
       videoHevc.play().catch(() => {});
       document.getElementById('hevc-file-label').textContent = `${modelName}.mp4`;
 
+      // 1.5. HEVC + SVG Filter
+      const videoHevcSvg = document.getElementById('video-hevc-svg');
+      if (videoHevcSvg) {
+        videoHevcSvg.src = `${modelName}.mp4`;
+        videoHevcSvg.load();
+        videoHevcSvg.play().catch(() => {});
+      }
+
       // 2. Combo (HEVC + WebM)
       const videoCombo = document.getElementById('video-combo');
       document.getElementById('source-combo-mp4').src = `${modelName}.mp4`;
@@ -657,6 +719,27 @@ if (r &gt;= th &amp;&amp; g &gt;= th &amp;&amp; b &gt;= th) data[i + 3] = 0; // 
       const videos = document.querySelectorAll('video');
       isPlaying = !isPlaying;
       videos.forEach(v => isPlaying ? v.play().catch(() => {}) : v.pause());
+    }
+
+    // Настройка SVG-фильтра очистки краёв HEVC (Карточка 1.5)
+    function updateSvgFilter() {
+      const erodeVal = document.getElementById('erode-range').value;
+      const cutoffVal = parseFloat(document.getElementById('cutoff-range').value);
+
+      document.getElementById('erode-val').textContent = erodeVal;
+      document.getElementById('cutoff-val').textContent = cutoffVal;
+
+      const erodeEl = document.getElementById('svg-erode');
+      const alphaEl = document.getElementById('svg-alpha-func');
+
+      if (erodeEl) erodeEl.setAttribute('radius', erodeVal);
+      if (alphaEl) {
+        // slope и intercept смещают кривую альфа-канала так, чтобы alpha <= cutoff стал 0
+        const slope = (1 / Math.max(0.05, 1 - cutoffVal)).toFixed(2);
+        const intercept = (-cutoffVal * slope).toFixed(2);
+        alphaEl.setAttribute('slope', slope);
+        alphaEl.setAttribute('intercept', intercept);
+      }
     }
 
     // Хромакей на Canvas (Карточка 5)
